@@ -22,7 +22,7 @@ following the review request rules Apple and Google describe.
 
   # Flutter.framework does not contain a i386 slice.
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }
-  s.swift_version = '6.0'
+  s.swift_version = '5.0'
 
   s.resource_bundles = {'review_etiquette_privacy' => ['review_etiquette/Sources/review_etiquette/PrivacyInfo.xcprivacy']}
 end
