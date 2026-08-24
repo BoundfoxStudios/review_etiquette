@@ -27,6 +27,14 @@ before it can depend on this package. Set `IPHONEOS_DEPLOYMENT_TARGET` to
 `16.0` in `ios/Runner.xcodeproj`, and if you still use CocoaPods, set
 `platform :ios, '16.0'` in `ios/Podfile`.
 
+If you raise the target and then build straight from Xcode, you may still see
+`The package product 'review-etiquette' requires minimum platform version 16.0
+for the iOS platform, but this target supports 15.0`. Flutter regenerates its
+plugin Swift package from its own floor on every `flutter pub get` and only
+raises it again during an iOS build, so run `flutter build ios --config-only`
+once afterwards. Building or running through the `flutter` command does this
+for you.
+
 On Android nothing special is needed, but the Play In-App Review library lives
 in Google's Maven repository rather than on Maven Central. Flutter's own
 template already includes `google()`; if your `settings.gradle.kts` was
