@@ -9,5 +9,6 @@
 /// ```
 library;
 
+export 'src/review_etiquette_base.dart';
 export 'src/review_etiquette_exception.dart';
 export 'src/review_request_outcome.dart';
