@@ -18,6 +18,10 @@ dependencies:
   clock: ^1.1.2
   flutter:
     sdk: flutter
+  # Not used by hand written code: the generated pigeon output imports it, and
+  # pub publish rejects an undeclared import even though the analyzer, which
+  # skips *.g.dart, never sees it.
+  meta: ^1.18.0
   shared_preferences: ^2.5.5
 
 dev_dependencies:
