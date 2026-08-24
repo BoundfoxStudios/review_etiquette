@@ -1,0 +1,16 @@
+name: Publish to pub.dev
+
+on:
+  push:
+    tags:
+      # Must match the tag pattern configured on pub.dev's admin page, and the
+      # tag release-please produces with include-component-in-tag: false.
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  publish:
+    permissions:
+      # Without this, setup-dart never requests an OIDC token and the job fails
+      # at authentication rather than at a missing permission.
+      id-token: write
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
