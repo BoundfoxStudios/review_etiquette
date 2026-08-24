@@ -1,0 +1,33 @@
+name: Release please
+
+on:
+  push:
+    branches: [main]
+
+permissions: {}
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      # A tag created with the default GITHUB_TOKEN starts no further workflow,
+      # so the publish job would never run. The app token is a real identity and
+      # its tag triggers publish.yml normally.
+      - uses: actions/create-github-app-token@v3
+        id: app-token
+        with:
+          # actionlint only knows the deprecated `app-id` from its bundled action
+          # data and flags this as unknown. That is a false positive; do not
+          # "fix" it.
+          client-id: ${{ vars.BFS_APP_BOT_CLIENT_ID }}
+          private-key: ${{ secrets.BFS_APP_BOT_PRIVATE_KEY }}
+
+      - uses: googleapis/release-please-action@v5
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
