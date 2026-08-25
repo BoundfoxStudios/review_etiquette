@@ -143,6 +143,12 @@ The 0.1.0 release therefore went out with the workflow commits held back, so the
 `v0.1.0` tag sits on a commit that carries no `publish.yml`. Its archive was
 uploaded by hand; `v1.0.0` is the first tag that actually runs `publish.yml`.
 
+`publish.yml` pins the reusable workflow to an **exact** tag
+(`dart-lang/setup-dart/.github/workflows/publish.yml@v1.8.0`), not to `v1`.
+Upstream stopped moving that major tag: it still points at v1.7.2, so `@v1`
+silently runs an older workflow than the newest release. Check the tag by hand
+when bumping actions.
+
 `release-as: "1.0.0"` in `release-please-config.json` forces the next release
 pull request to that version. **Take the line out once the pull request is
 merged**, or every later release stays 1.0.0. `bump-minor-pre-major` and

@@ -13,4 +13,6 @@ jobs:
       # Without this, setup-dart never requests an OIDC token and the job fails
       # at authentication rather than at a missing permission.
       id-token: write
-    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+    # An exact tag, not the floating `v1`: that major tag still sits on v1.7.2
+    # and misses the newer pins in the reusable workflow. Bump it by hand.
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1.8.0
