@@ -117,6 +117,20 @@ TextButton(
 Both entry points sit on the same instance, so the object you register in your
 dependency injection container covers the whole surface.
 
+Where the button sits far away from that object, there is a static variant that
+does exactly the same thing. Opening the store page needs neither an app version
+nor a cooldown, so there is nothing to construct:
+
+```dart
+TextButton(
+  onPressed: () => ReviewEtiquette.showStoreListing(appStoreId: '123456789'),
+  child: const Text('Rate this app'),
+)
+```
+
+The name differs only because Dart forbids a static and an instance member
+sharing one.
+
 `appStoreId` is only used on iOS; Android derives the listing from the package
 name. It is optional so that an Android-only app does not have to invent a
 value, but leaving it out on iOS throws `ReviewEtiquetteException` rather than

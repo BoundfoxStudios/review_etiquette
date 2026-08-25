@@ -9,7 +9,8 @@ import 'store_listing.dart' as store_listing;
 ///
 /// Create one instance, keep it around, and call [requestReview] at the moment
 /// your app delivered value. Both Apple and Google forbid attaching the system
-/// prompt to a button; use [openStoreListing] for that.
+/// prompt to a button; use [openStoreListing], or [showStoreListing] where no
+/// instance is at hand, for that.
 class ReviewEtiquette {
   /// Creates a policy for [appVersion] that waits [cooldown] between requests.
   ///
@@ -62,6 +63,19 @@ class ReviewEtiquette {
   /// Throws a [ReviewEtiquetteException] when the store cannot be opened.
   Future<void> openStoreListing({String? appStoreId}) =>
       store_listing.openStoreListing(_api, appStoreId);
+
+  /// Does the same as [openStoreListing], without needing an instance.
+  ///
+  /// For a "rate this app" button that sits far away from wherever the app
+  /// keeps its [ReviewEtiquette]. Opening the store page needs neither an app
+  /// version nor a cooldown, so there is nothing to construct.
+  ///
+  /// The name differs from the instance method because Dart forbids a static
+  /// and an instance member sharing one.
+  ///
+  /// Throws a [ReviewEtiquetteException] when the store cannot be opened.
+  static Future<void> showStoreListing({String? appStoreId}) =>
+      store_listing.openStoreListing(ReviewEtiquetteHostApi(), appStoreId);
 
   static String _checked(String appVersion) {
     if (appVersion.trim().isEmpty) {
