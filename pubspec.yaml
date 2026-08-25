@@ -1,6 +1,6 @@
 name: review_etiquette
 description: Asks for an in-app review at the right moment, after your app delivered value instead of on launch, following the Apple and Google rules.
-version: 0.1.0
+version: 1.0.0
 repository: https://github.com/BoundfoxStudios/review_etiquette
 issue_tracker: https://github.com/BoundfoxStudios/review_etiquette/issues
 topics:
