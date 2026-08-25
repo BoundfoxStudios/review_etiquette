@@ -54,7 +54,7 @@ hand-written, make sure it is there.
 
 ```yaml
 dependencies:
-  review_etiquette: ^0.1.0
+  review_etiquette: ^1.0.0
 ```
 
 ## Usage
