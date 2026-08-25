@@ -7,25 +7,39 @@ import 'store_listing.dart' as store_listing;
 
 /// Asks for an in-app review, but only when the platform etiquette allows it.
 ///
-/// Create one instance and call [requestReview] at the moment your app
-/// delivered value. Both Apple and Google forbid attaching the system prompt
-/// to a button; use [openStoreListing] for that.
+/// Create one instance, keep it around, and call [requestReview] at the moment
+/// your app delivered value. Both Apple and Google forbid attaching the system
+/// prompt to a button; use [openStoreListing] for that.
 class ReviewEtiquette {
   /// Creates a policy for [appVersion] that waits [cooldown] between requests.
   ///
   /// [appVersion] is the user visible version, not a build number that changes
   /// on every CI run, or the version condition never holds. Throws an
   /// [ArgumentError] when it is blank or when [cooldown] is negative.
-  ReviewEtiquette({
+  factory ReviewEtiquette({
     required String appVersion,
     Duration cooldown = const Duration(days: 120),
-  }) : _requester = ReviewRequester(
-         appVersion: _checked(appVersion),
-         cooldown: _nonNegative(cooldown),
-         api: ReviewEtiquetteHostApi(),
+  }) => ReviewEtiquette._(
+    api: ReviewEtiquetteHostApi(),
+    appVersion: _checked(appVersion),
+    cooldown: _nonNegative(cooldown),
+  );
+
+  // Both entry points talk to the same channel, and the requester needs it at
+  // construction time, so it is built once here rather than per call.
+  ReviewEtiquette._({
+    required ReviewEtiquetteHostApi api,
+    required String appVersion,
+    required Duration cooldown,
+  }) : _api = api,
+       _requester = ReviewRequester(
+         appVersion: appVersion,
+         cooldown: cooldown,
+         api: api,
          storage: ReviewStateStorage(),
        );
 
+  final ReviewEtiquetteHostApi _api;
   final ReviewRequester _requester;
 
   /// Asks for a review if the cooldown has elapsed and this version has not
@@ -46,8 +60,8 @@ class ReviewEtiquette {
   /// listing from the package name.
   ///
   /// Throws a [ReviewEtiquetteException] when the store cannot be opened.
-  static Future<void> openStoreListing({String? appStoreId}) =>
-      store_listing.openStoreListing(ReviewEtiquetteHostApi(), appStoreId);
+  Future<void> openStoreListing({String? appStoreId}) =>
+      store_listing.openStoreListing(_api, appStoreId);
 
   static String _checked(String appVersion) {
     if (appVersion.trim().isEmpty) {

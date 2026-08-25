@@ -49,9 +49,9 @@ dependencies:
 
 ## Usage
 
-Create one instance and hand it your app version. The package never reads the
-version itself, which keeps a dependency and a platform channel out of the
-picture.
+Create one instance, hand it your app version, and keep it around. The package
+never reads the version itself, which keeps a dependency and a platform channel
+out of the picture.
 
 ```dart
 import 'package:review_etiquette/review_etiquette.dart';
@@ -99,10 +99,13 @@ path is the store listing, and that is a separate call:
 
 ```dart
 TextButton(
-  onPressed: () => ReviewEtiquette.openStoreListing(appStoreId: '123456789'),
+  onPressed: () => etiquette.openStoreListing(appStoreId: '123456789'),
   child: const Text('Rate this app'),
 )
 ```
+
+Both entry points sit on the same instance, so the object you register in your
+dependency injection container covers the whole surface.
 
 `appStoreId` is only used on iOS; Android derives the listing from the package
 name. It is optional so that an Android-only app does not have to invent a

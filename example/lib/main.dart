@@ -40,13 +40,15 @@ class _ExamplePageState extends State<ExamplePage> {
     super.dispose();
   }
 
-  Future<void> _onSuccessEvent() async {
-    final etiquette = ReviewEtiquette(
-      appVersion: _appVersion.text.trim(),
-      cooldown: _shortCooldown ? Duration.zero : const Duration(days: 120),
-    );
+  // A real app builds this once, in whatever it uses for dependency injection.
+  // Here it is rebuilt per call so the version field stays editable.
+  ReviewEtiquette get _etiquette => ReviewEtiquette(
+    appVersion: _appVersion.text.trim(),
+    cooldown: _shortCooldown ? Duration.zero : const Duration(days: 120),
+  );
 
-    final outcome = await etiquette.requestReview();
+  Future<void> _onSuccessEvent() async {
+    final outcome = await _etiquette.requestReview();
 
     if (!mounted) {
       return;
@@ -58,9 +60,7 @@ class _ExamplePageState extends State<ExamplePage> {
     final id = _appStoreId.text.trim();
 
     try {
-      await ReviewEtiquette.openStoreListing(
-        appStoreId: id.isEmpty ? null : id,
-      );
+      await _etiquette.openStoreListing(appStoreId: id.isEmpty ? null : id);
       if (!mounted) {
         return;
       }
