@@ -80,10 +80,20 @@ mockable. The `FakeReviewManager` from the Play artifact is unusable in a JVM
 test: it calls `new Intent()`, `Build.VERSION.SDK_INT` and
 `PendingIntent.getBroadcast()`. JUnit 5 stays.
 
-**`openStoreListing` is an instance method and cannot also be static**
-(2026-08-25). Dart rejects a static and an instance member of the same name
-(`conflicting_static_and_instance`). The instance form won because a consumer
-holding the object through dependency injection gets the whole surface.
+**The store listing deliberately has two names** (2026-08-25). Dart rejects a
+static and an instance member of the same name
+(`conflicting_static_and_instance`), so the instance form stayed
+`openStoreListing` and the static one is `ReviewEtiquette.showStoreListing`.
+Both exist: the instance form so a consumer holding the object through
+dependency injection gets the whole surface, the static one because a "rate this
+app" button needs neither an app version nor a cooldown.
+
+A **top-level** `openStoreListing` would keep one name for both, since the
+conflict is a class-scope rule only. It was rejected on purpose: the library is
+exported wholesale, so the name would land in every file that imports the
+package, and a bare `openStoreListing(...)` at a call site names no package
+while `ReviewEtiquette.showStoreListing(...)` does. The second verb is the
+price for that.
 
 **No `screenshots:` entry in the pubspec.** It earns no pub.dev points and can
 cost the ten points for the example. The README image is a different thing and
