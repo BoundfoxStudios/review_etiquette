@@ -1,5 +1,10 @@
 # review_etiquette
 
+[![pub package](https://img.shields.io/pub/v/review_etiquette.svg)](https://pub.dev/packages/review_etiquette)
+[![pub points](https://img.shields.io/pub/points/review_etiquette)](https://pub.dev/packages/review_etiquette/score)
+[![publisher](https://img.shields.io/pub/publisher/review_etiquette)](https://pub.dev/publishers/boundfoxstudios.com)
+[![CI](https://github.com/BoundfoxStudios/review_etiquette/actions/workflows/ci.yml/badge.svg)](https://github.com/BoundfoxStudios/review_etiquette/actions/workflows/ci.yml)
+
 Ask for an in-app review when your app has just delivered value, not when it
 starts.
 
@@ -11,6 +16,11 @@ count app launches instead. This one codifies the etiquette.
 The trigger is yours to choose: an export finished, a workout was logged, a
 level was beaten. You call one method at that moment, and the package decides
 whether asking right now is allowed.
+
+<img src="doc/assets/example-ios.png" alt="The StoreKit review prompt over a running app" width="300">
+
+*What the user sees on iOS: the system prompt, triggered after a success event.
+The package decides the moment; the sheet itself belongs to the platform.*
 
 ## Requirements
 

@@ -130,20 +130,32 @@ jobs:
       - name: Run the Swift suite
         working-directory: example/ios
         run: |
-          set -o pipefail
+          # Picked at run time rather than hardcoded: the runner image rotates
+          # which simulators exist, and naming a missing one fails with exit 70.
+          simulator=$(xcrun simctl list devices available --json \
+            | jq -r '[.devices[][] | select(.name | startswith("iPhone"))][0].udid')
+          if [ -z "$simulator" ] || [ "$simulator" = "null" ]; then
+            echo "No iPhone simulator is available on this runner."
+            exit 1
+          fi
+          echo "Using simulator $simulator"
+
+          # The `|| status=$?` matters: these steps run under `set -e`, so a
+          # bare call would abort before the exit code below is inspected.
+          status=0
           xcodebuild test \
             -workspace Runner.xcworkspace \
             -scheme Runner \
-            -destination 'platform=iOS Simulator,name=iPhone 16' \
-            CODE_SIGNING_ALLOWED=NO
-          status=$?
+            -destination "id=$simulator" \
+            CODE_SIGNING_ALLOWED=NO || status=$?
+
           # 66 means xcodebuild found no tests at all, which otherwise passes
           # for a target that was never added to the scheme.
-          if [ $status -eq 66 ]; then
+          if [ "$status" -eq 66 ]; then
             echo "xcodebuild found no tests"
             exit 1
           fi
-          exit $status
+          exit "$status"
 
   score:
     runs-on: ubuntu-latest
