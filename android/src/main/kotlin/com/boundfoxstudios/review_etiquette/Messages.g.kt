@@ -53,12 +53,41 @@ class FlutterError (
   override val message: String? = null,
   val details: Any? = null
 ) : RuntimeException()
+
+/**
+ * Which App Store page a listing call lands on.
+ *
+ * Ignored on Android, where the Play Store has a single listing URL.
+ */
+enum class StoreListingAction(val raw: Int) {
+  WRITE_REVIEW(0),
+  VIEW(1);
+
+  companion object {
+    fun ofRaw(raw: Int): StoreListingAction? {
+      return values().firstOrNull { it.raw == raw }
+    }
+  }
+}
 private open class MessagesPigeonCodec : StandardMessageCodec() {
   override fun readValueOfType(type: Byte, buffer: ByteBuffer): Any? {
-    return     super.readValueOfType(type, buffer)
+    return when (type) {
+      129.toByte() -> {
+        return (readValue(buffer) as Long?)?.let {
+          StoreListingAction.ofRaw(it.toInt())
+        }
+      }
+      else -> super.readValueOfType(type, buffer)
+    }
   }
   override fun writeValue(stream: ByteArrayOutputStream, value: Any?)   {
-    super.writeValue(stream, value)
+    when (value) {
+      is StoreListingAction -> {
+        stream.write(129)
+        writeValue(stream, value.raw.toLong())
+      }
+      else -> super.writeValue(stream, value)
+    }
   }
 }
 
@@ -66,10 +95,8 @@ private open class MessagesPigeonCodec : StandardMessageCodec() {
 /** Generated interface from Pigeon that represents a handler of messages from Flutter. */
 interface ReviewEtiquetteHostApi {
   suspend fun requestReview()
-  /** Opens this app's listing with the review composer on top. */
-  suspend fun openStoreListing(appStoreId: String?)
-  /** Opens the listing of the given app, without the review composer. */
-  suspend fun showStoreListing(appStoreId: String?, androidPackageName: String?)
+  /** Opens the store page of the named app; a null package name means this app. */
+  suspend fun openStoreListing(appStoreId: String?, androidPackageName: String?, action: StoreListingAction)
 
   companion object {
     /** The codec used by ReviewEtiquetteHostApi. */
@@ -104,30 +131,11 @@ interface ReviewEtiquetteHostApi {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
             val appStoreIdArg = args[0] as String?
-            CoroutineScope(Dispatchers.Main).launch {
-              val wrapped: List<Any?> = try {
-                api.openStoreListing(appStoreIdArg)
-                listOf(null)
-              } catch (exception: Throwable) {
-                MessagesPigeonUtils.wrapError(exception)
-              }
-              reply.reply(wrapped)
-            }
-          }
-        } else {
-          channel.setMessageHandler(null)
-        }
-      }
-      run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.review_etiquette.ReviewEtiquetteHostApi.showStoreListing$separatedMessageChannelSuffix", codec)
-        if (api != null) {
-          channel.setMessageHandler { message, reply ->
-            val args = message as List<Any?>
-            val appStoreIdArg = args[0] as String?
             val androidPackageNameArg = args[1] as String?
+            val actionArg = args[2] as StoreListingAction
             CoroutineScope(Dispatchers.Main).launch {
               val wrapped: List<Any?> = try {
-                api.showStoreListing(appStoreIdArg, androidPackageNameArg)
+                api.openStoreListing(appStoreIdArg, androidPackageNameArg, actionArg)
                 listOf(null)
               } catch (exception: Throwable) {
                 MessagesPigeonUtils.wrapError(exception)

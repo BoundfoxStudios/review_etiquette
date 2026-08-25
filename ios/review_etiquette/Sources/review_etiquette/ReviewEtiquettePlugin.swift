@@ -37,47 +37,22 @@ public class ReviewEtiquettePlugin: NSObject, FlutterPlugin, ReviewEtiquetteHost
   }
 
   @MainActor
-  func openStoreListing(appStoreId: String?) async throws {
-    let appStoreId = try requireAppStoreId(appStoreId)
-
-    guard let url = AppStoreLink.writeReview(appStoreId: appStoreId) else {
-      throw invalidAppStoreId(appStoreId)
-    }
-
-    try await open(url)
-  }
-
-  @MainActor
-  func showStoreListing(appStoreId: String?, androidPackageName: String?) async throws {
-    let appStoreId = try requireAppStoreId(appStoreId)
-
-    guard let url = AppStoreLink.productPage(appStoreId: appStoreId) else {
-      throw invalidAppStoreId(appStoreId)
-    }
-
-    try await open(url)
-  }
-
-  private func requireAppStoreId(_ appStoreId: String?) throws -> String {
+  func openStoreListing(
+    appStoreId: String?, androidPackageName: String?, action: StoreListingAction
+  ) async throws {
     guard let appStoreId else {
       throw PigeonError(
         code: "missing_app_store_id",
         message: "appStoreId is required on iOS.",
         details: "Pass the numeric id from your App Store product page URL.")
     }
+    guard let url = AppStoreLink.url(appStoreId: appStoreId, action: action) else {
+      throw PigeonError(
+        code: "invalid_app_store_id",
+        message: "appStoreId did not produce a usable App Store URL.",
+        details: appStoreId)
+    }
 
-    return appStoreId
-  }
-
-  private func invalidAppStoreId(_ appStoreId: String) -> PigeonError {
-    PigeonError(
-      code: "invalid_app_store_id",
-      message: "appStoreId did not produce a usable App Store URL.",
-      details: appStoreId)
-  }
-
-  @MainActor
-  private func open(_ url: URL) async throws {
     // No canOpenURL guard: that call is gated on LSApplicationQueriesSchemes
     // while open() is not, so checking first is the classic way to break an
     // https link that would have opened fine.

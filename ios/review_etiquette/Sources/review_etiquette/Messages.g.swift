@@ -75,10 +75,38 @@ private func nilOrValue<T>(_ value: Any?) -> T? {
 }
 
 
+/// Which App Store page a listing call lands on.
+///
+/// Ignored on Android, where the Play Store has a single listing URL.
+enum StoreListingAction: Int, CaseIterable {
+  case writeReview = 0
+  case view = 1
+}
+
 private class MessagesPigeonCodecReader: FlutterStandardReader {
+  override func readValue(ofType type: UInt8) -> Any? {
+    switch type {
+    case 129:
+      let enumResultAsInt: Int? = nilOrValue(self.readValue() as! Int?)
+      if let enumResultAsInt = enumResultAsInt {
+        return StoreListingAction(rawValue: enumResultAsInt)
+      }
+      return nil
+    default:
+      return super.readValue(ofType: type)
+    }
+  }
 }
 
 private class MessagesPigeonCodecWriter: FlutterStandardWriter {
+  override func writeValue(_ value: Any) {
+    if let value = value as? StoreListingAction {
+      super.writeByte(129)
+      super.writeValue(value.rawValue)
+    } else {
+      super.writeValue(value)
+    }
+  }
 }
 
 private class MessagesPigeonCodecReaderWriter: FlutterStandardReaderWriter {
@@ -99,10 +127,8 @@ class MessagesPigeonCodec: FlutterStandardMessageCodec, @unchecked Sendable {
 /// Generated protocol from Pigeon that represents a handler of messages from Flutter.
 protocol ReviewEtiquetteHostApi {
   func requestReview() async throws
-  /// Opens this app's listing with the review composer on top.
-  func openStoreListing(appStoreId: String?) async throws
-  /// Opens the listing of the given app, without the review composer.
-  func showStoreListing(appStoreId: String?, androidPackageName: String?) async throws
+  /// Opens the store page of the named app; a null package name means this app.
+  func openStoreListing(appStoreId: String?, androidPackageName: String?, action: StoreListingAction) async throws
 }
 
 /// Generated setup class from Pigeon to handle messages through the `binaryMessenger`.
@@ -126,15 +152,17 @@ class ReviewEtiquetteHostApiSetup {
     } else {
       requestReviewChannel.setMessageHandler(nil)
     }
-    /// Opens this app's listing with the review composer on top.
+    /// Opens the store page of the named app; a null package name means this app.
     let openStoreListingChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.review_etiquette.ReviewEtiquetteHostApi.openStoreListing\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       openStoreListingChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
         let appStoreIdArg: String? = nilOrValue(args[0])
+        let androidPackageNameArg: String? = nilOrValue(args[1])
+        let actionArg = args[2] as! StoreListingAction
         Task { @MainActor in
           do {
-            try await api.openStoreListing(appStoreId: appStoreIdArg)
+            try await api.openStoreListing(appStoreId: appStoreIdArg, androidPackageName: androidPackageNameArg, action: actionArg)
             reply(wrapResult(nil))
           } catch {
             reply(wrapError(error))
@@ -143,25 +171,6 @@ class ReviewEtiquetteHostApiSetup {
       }
     } else {
       openStoreListingChannel.setMessageHandler(nil)
-    }
-    /// Opens the listing of the given app, without the review composer.
-    let showStoreListingChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.review_etiquette.ReviewEtiquetteHostApi.showStoreListing\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
-    if let api = api {
-      showStoreListingChannel.setMessageHandler { message, reply in
-        let args = message as! [Any?]
-        let appStoreIdArg: String? = nilOrValue(args[0])
-        let androidPackageNameArg: String? = nilOrValue(args[1])
-        Task { @MainActor in
-          do {
-            try await api.showStoreListing(appStoreId: appStoreIdArg, androidPackageName: androidPackageNameArg)
-            reply(wrapResult(nil))
-          } catch {
-            reply(wrapError(error))
-          }
-        }
-      }
-    } else {
-      showStoreListingChannel.setMessageHandler(nil)
     }
   }
 }

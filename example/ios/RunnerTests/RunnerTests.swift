@@ -6,7 +6,7 @@ import Testing
 struct AppStoreLinkTests {
   @Test("builds the documented write-review deep link")
   func buildsWriteReviewLink() {
-    let url = AppStoreLink.writeReview(appStoreId: "123456789")
+    let url = AppStoreLink.url(appStoreId: "123456789", action: .writeReview)
 
     #expect(
       url?.absoluteString == "https://apps.apple.com/app/id123456789?action=write-review")
@@ -14,15 +14,15 @@ struct AppStoreLinkTests {
 
   @Test("builds the product page link without the review action")
   func buildsProductPageLink() {
-    let url = AppStoreLink.productPage(appStoreId: "987654321")
+    let url = AppStoreLink.url(appStoreId: "987654321", action: .view)
 
     #expect(url?.absoluteString == "https://apps.apple.com/app/id987654321")
   }
 
   @Test("rejects an empty id instead of building a broken link")
   func rejectsEmptyId() {
-    #expect(AppStoreLink.writeReview(appStoreId: "") == nil)
-    #expect(AppStoreLink.productPage(appStoreId: "") == nil)
+    #expect(AppStoreLink.url(appStoreId: "", action: .writeReview) == nil)
+    #expect(AppStoreLink.url(appStoreId: "", action: .view) == nil)
   }
 }
 
@@ -48,7 +48,8 @@ struct ReviewEtiquettePluginTests {
     let plugin = ReviewEtiquettePlugin(registrar: nil)
 
     do {
-      try await plugin.openStoreListing(appStoreId: nil)
+      try await plugin.openStoreListing(
+        appStoreId: nil, androidPackageName: nil, action: .writeReview)
       Issue.record("Expected openStoreListing to throw without an id.")
     } catch let error as PigeonError {
       #expect(error.code == "missing_app_store_id")
@@ -62,36 +63,9 @@ struct ReviewEtiquettePluginTests {
     let plugin = ReviewEtiquettePlugin(registrar: nil)
 
     do {
-      try await plugin.openStoreListing(appStoreId: "")
+      try await plugin.openStoreListing(
+        appStoreId: "", androidPackageName: "com.example.other", action: .view)
       Issue.record("Expected openStoreListing to throw for an empty id.")
-    } catch let error as PigeonError {
-      #expect(error.code == "invalid_app_store_id")
-    } catch {
-      Issue.record("Unexpected error: \(error)")
-    }
-  }
-
-  @Test("reports missing_app_store_id when another app has no id")
-  func reportsMissingAppStoreIdForAnotherApp() async {
-    let plugin = ReviewEtiquettePlugin(registrar: nil)
-
-    do {
-      try await plugin.showStoreListing(appStoreId: nil, androidPackageName: "com.example.other")
-      Issue.record("Expected showStoreListing to throw without an id.")
-    } catch let error as PigeonError {
-      #expect(error.code == "missing_app_store_id")
-    } catch {
-      Issue.record("Unexpected error: \(error)")
-    }
-  }
-
-  @Test("reports invalid_app_store_id when another app's id yields no URL")
-  func reportsInvalidAppStoreIdForAnotherApp() async {
-    let plugin = ReviewEtiquettePlugin(registrar: nil)
-
-    do {
-      try await plugin.showStoreListing(appStoreId: "", androidPackageName: nil)
-      Issue.record("Expected showStoreListing to throw for an empty id.")
     } catch let error as PigeonError {
       #expect(error.code == "invalid_app_store_id")
     } catch {

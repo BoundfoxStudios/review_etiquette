@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:review_etiquette/review_etiquette.dart';
+import 'package:review_etiquette/src/messages.g.dart';
 import 'package:review_etiquette/src/store_listing.dart' as store_listing;
 
 import 'fake_host_api.dart';
@@ -25,13 +26,15 @@ void main() {
     },
   );
 
-  test('openStoreListing_iosWithAppStoreId_passesItThrough', () async {
+  test('openStoreListing_iosWithAppStoreId_asksForTheReviewComposer', () async {
     debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
     final api = FakeHostApi();
 
     await store_listing.openStoreListing(api, appStoreId: '123456789');
 
-    expect(api.openedWith, <String?>['123456789']);
+    expect(api.openedWith, <(String?, String?, StoreListingAction)>[
+      ('123456789', null, StoreListingAction.writeReview),
+    ]);
   });
 
   test('openStoreListing_androidWithoutAppStoreId_stillOpens', () async {
@@ -40,7 +43,9 @@ void main() {
 
     await store_listing.openStoreListing(api, appStoreId: null);
 
-    expect(api.openedWith, <String?>[null]);
+    expect(api.openedWith, <(String?, String?, StoreListingAction)>[
+      (null, null, StoreListingAction.writeReview),
+    ]);
   });
 
   test(
@@ -93,7 +98,7 @@ void main() {
         ),
         throwsA(isA<ReviewEtiquetteException>()),
       );
-      expect(api.shownWith, isEmpty);
+      expect(api.openedWith, isEmpty);
     },
   );
 
@@ -117,11 +122,11 @@ void main() {
           ),
         ),
       );
-      expect(api.shownWith, isEmpty);
+      expect(api.openedWith, isEmpty);
     },
   );
 
-  test('showStoreListing_bothIdsGiven_passesThemThrough', () async {
+  test('showStoreListing_bothIdsGiven_opensTheProductPage', () async {
     debugDefaultTargetPlatformOverride = TargetPlatform.android;
     final api = FakeHostApi();
 
@@ -131,8 +136,8 @@ void main() {
       androidPackageName: 'com.example.other',
     );
 
-    expect(api.shownWith, <(String?, String?)>[
-      ('987654321', 'com.example.other'),
+    expect(api.openedWith, <(String?, String?, StoreListingAction)>[
+      ('987654321', 'com.example.other', StoreListingAction.view),
     ]);
   });
 
@@ -146,7 +151,9 @@ void main() {
       androidPackageName: null,
     );
 
-    expect(api.shownWith, <(String?, String?)>[('987654321', null)]);
+    expect(api.openedWith, <(String?, String?, StoreListingAction)>[
+      ('987654321', null, StoreListingAction.view),
+    ]);
   });
 
   test(

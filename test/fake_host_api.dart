@@ -10,11 +10,9 @@ class FakeHostApi implements ReviewEtiquetteHostApi {
   /// How often a review was requested.
   int requestReviewCalls = 0;
 
-  /// Every app store id the store listing was opened with, in order.
-  final List<String?> openedWith = <String?>[];
-
-  /// Every app the store listing was shown for, in order.
-  final List<(String?, String?)> shownWith = <(String?, String?)>[];
+  /// Every store listing call, in order.
+  final List<(String?, String?, StoreListingAction)> openedWith =
+      <(String?, String?, StoreListingAction)>[];
 
   /// Thrown by every method when set, including plain [Error]s.
   Object? failWith;
@@ -32,17 +30,12 @@ class FakeHostApi implements ReviewEtiquetteHostApi {
   }
 
   @override
-  Future<void> openStoreListing(String? appStoreId) async {
-    openedWith.add(appStoreId);
-    _failIfAsked();
-  }
-
-  @override
-  Future<void> showStoreListing(
+  Future<void> openStoreListing(
     String? appStoreId,
     String? androidPackageName,
+    StoreListingAction action,
   ) async {
-    shownWith.add((appStoreId, androidPackageName));
+    openedWith.add((appStoreId, androidPackageName, action));
     _failIfAsked();
   }
 

@@ -15,11 +15,15 @@ Future<void> openStoreListing(
 }) async {
   _requireAppStoreIdOnIos(appStoreId);
 
-  await _translatingFailures(() => api.openStoreListing(appStoreId));
+  // A null package name is what the native side reads as this app.
+  await _translatingFailures(
+    () =>
+        api.openStoreListing(appStoreId, null, StoreListingAction.writeReview),
+  );
 }
 
 /// Opens the store page of the app named by [appStoreId] and
-/// [androidPackageName] through [api].
+/// [androidPackageName] through [api], without the review composer.
 ///
 /// Throws like [openStoreListing], and for the same reason.
 Future<void> showStoreListing(
@@ -40,7 +44,11 @@ Future<void> showStoreListing(
   }
 
   await _translatingFailures(
-    () => api.showStoreListing(appStoreId, androidPackageName),
+    () => api.openStoreListing(
+      appStoreId,
+      androidPackageName,
+      StoreListingAction.view,
+    ),
   );
 }
 

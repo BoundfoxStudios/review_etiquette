@@ -14,16 +14,21 @@ import 'package:pigeon/pigeon.dart';
     dartPackageName: 'review_etiquette',
   ),
 )
+/// Which App Store page a listing call lands on.
+///
+/// Ignored on Android, where the Play Store has a single listing URL.
+enum StoreListingAction { writeReview, view }
+
 @HostApi()
 abstract class ReviewEtiquetteHostApi {
   @async
   void requestReview();
 
-  /// Opens this app's listing with the review composer on top.
+  /// Opens the store page of the named app; a null package name means this app.
   @async
-  void openStoreListing(String? appStoreId);
-
-  /// Opens the listing of the given app, without the review composer.
-  @async
-  void showStoreListing(String? appStoreId, String? androidPackageName);
+  void openStoreListing(
+    String? appStoreId,
+    String? androidPackageName,
+    StoreListingAction action,
+  );
 }
