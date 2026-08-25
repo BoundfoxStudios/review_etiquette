@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0](https://github.com/BoundfoxStudios/review_etiquette/compare/v0.1.0...v1.0.0) (2026-08-25)
+
+
+### Features
+
+* add a static store listing entry point ([4e4cd88](https://github.com/BoundfoxStudios/review_etiquette/commit/4e4cd88578674ff999d8c6061834e91266f8d403))
+
 ## 0.1.0
 
 * Initial release.
