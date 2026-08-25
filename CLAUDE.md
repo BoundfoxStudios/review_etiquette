@@ -147,7 +147,8 @@ uploaded by hand; `v1.0.0` is the first tag that actually runs `publish.yml`.
 (`dart-lang/setup-dart/.github/workflows/publish.yml@v1.8.0`), not to `v1`.
 Upstream stopped moving that major tag: it still points at v1.7.2, so `@v1`
 silently runs an older workflow than the newest release. Check the tag by hand
-when bumping actions.
+when bumping actions. This is a workaround for dart-lang/setup-dart#191; once
+upstream moves `v1` again, go back to `@v1` and drop this paragraph.
 
 `release-as: "1.0.0"` in `release-please-config.json` forces the next release
 pull request to that version. **Take the line out once the pull request is

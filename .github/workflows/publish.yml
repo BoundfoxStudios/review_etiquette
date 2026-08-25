@@ -14,5 +14,6 @@ jobs:
       # at authentication rather than at a missing permission.
       id-token: write
     # An exact tag, not the floating `v1`: that major tag still sits on v1.7.2
-    # and misses the newer pins in the reusable workflow. Bump it by hand.
+    # and misses the newer pins in the reusable workflow. Bump it by hand until
+    # dart-lang/setup-dart#191 is fixed.
     uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1.8.0
