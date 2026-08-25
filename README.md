@@ -17,7 +17,7 @@ The trigger is yours to choose: an export finished, a workout was logged, a
 level was beaten. You call one method at that moment, and the package decides
 whether asking right now is allowed.
 
-<img src="docs/assets/example-ios.png" alt="The StoreKit review prompt over a running app" width="300">
+<img src="doc/assets/example-ios.png" alt="The StoreKit review prompt over a running app" width="300">
 
 *What the user sees on iOS: the system prompt, triggered after a success event.
 The package decides the moment; the sheet itself belongs to the platform.*
