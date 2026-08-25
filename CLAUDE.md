@@ -140,7 +140,15 @@ release-please cuts the version and the changelog from conventional commits;
 Two things that bite: a workflow file is armed the moment a push puts it on
 `main`, and GitHub resolves a tag push's workflows from the **tagged** commit.
 The 0.1.0 release therefore went out with the workflow commits held back, so the
-`v0.1.0` tag sits on a commit that carries no `publish.yml`.
+`v0.1.0` tag sits on a commit that carries no `publish.yml`. Its archive was
+uploaded by hand; `v1.0.0` is the first tag that actually runs `publish.yml`.
+
+`release-as: "1.0.0"` in `release-please-config.json` forces the next release
+pull request to that version. **Take the line out once the pull request is
+merged**, or every later release stays 1.0.0. `bump-minor-pre-major` and
+`bump-patch-for-minor-pre-major` were dropped in the same pass: both only apply
+below 1.0.0, and together they are why a `feat` bumped the patch instead of the
+minor up to 0.1.x.
 
 ## Verifying by hand
 
