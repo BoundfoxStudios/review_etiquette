@@ -126,6 +126,31 @@ Unlike `requestReview()`, this one **does** throw when the store cannot be
 opened. A button that silently does nothing is worse than an error you can
 handle.
 
+### A link to another app
+
+For an app you did not ship, your other one or a partner's, the same listing is
+one static call away. It needs no instance, because an app you did not ship has
+no review policy to hold:
+
+```dart
+TextButton(
+  onPressed: () => ReviewEtiquette.showStoreListing(
+    appStoreId: '987654321',
+    androidPackageName: 'com.example.other',
+  ),
+  child: const Text('Our other app'),
+)
+```
+
+This opens the plain product page rather than the review composer that
+`openStoreListing()` puts on top: nobody wants to be asked to rate an app they
+have not installed yet.
+
+Each id is required on the platform that uses it, `appStoreId` on iOS and
+`androidPackageName` on Android, and leaving one out throws there. On Android
+the missing package name would otherwise open your own listing, which is a
+silent wrong result rather than a visible failure.
+
 ## How the timing works
 
 Two conditions, both of which must hold:

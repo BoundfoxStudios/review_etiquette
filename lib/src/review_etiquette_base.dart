@@ -61,7 +61,24 @@ class ReviewEtiquette {
   ///
   /// Throws a [ReviewEtiquetteException] when the store cannot be opened.
   Future<void> openStoreListing({String? appStoreId}) =>
-      store_listing.openStoreListing(_api, appStoreId);
+      store_listing.openStoreListing(_api, appStoreId: appStoreId);
+
+  /// Opens the store page of another app, for a cross promotion link.
+  ///
+  /// Needs no instance, because an app you did not ship has no review policy
+  /// to hold. [appStoreId] is required on iOS and [androidPackageName] on
+  /// Android, each naming the app to show. Unlike [openStoreListing] this
+  /// opens the plain product page, without the review composer.
+  ///
+  /// Throws a [ReviewEtiquetteException] when the store cannot be opened.
+  static Future<void> showStoreListing({
+    String? appStoreId,
+    String? androidPackageName,
+  }) => store_listing.showStoreListing(
+    ReviewEtiquetteHostApi(),
+    appStoreId: appStoreId,
+    androidPackageName: androidPackageName,
+  );
 
   static String _checked(String appVersion) {
     if (appVersion.trim().isEmpty) {

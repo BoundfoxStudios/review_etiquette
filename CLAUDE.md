@@ -83,7 +83,10 @@ test: it calls `new Intent()`, `Build.VERSION.SDK_INT` and
 **`openStoreListing` is an instance method and cannot also be static**
 (2026-08-25). Dart rejects a static and an instance member of the same name
 (`conflicting_static_and_instance`). The instance form won because a consumer
-holding the object through dependency injection gets the whole surface.
+holding the object through dependency injection gets the whole surface. The
+static sibling for other apps therefore carries its own name and its own native
+method: `showStoreListing` opens the plain product page, while
+`openStoreListing` keeps `?action=write-review` on iOS.
 
 **No `screenshots:` entry in the pubspec.** It earns no pub.dev points and can
 cost the ten points for the example. The README image is a different thing and

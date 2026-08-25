@@ -64,8 +64,31 @@ class ReviewEtiquettePlugin :
 
     override suspend fun openStoreListing(appStoreId: String?) {
         val activity = requireActivity()
-        val listing =
-            Uri.parse("https://play.google.com/store/apps/details?id=${activity.packageName}")
+
+        openListing(activity, activity.packageName)
+    }
+
+    override suspend fun showStoreListing(
+        appStoreId: String?,
+        androidPackageName: String?,
+    ) {
+        val activity = requireActivity()
+        val packageName =
+            androidPackageName
+                ?: throw FlutterError(
+                    "missing_package_name",
+                    "androidPackageName is required on Android.",
+                    null,
+                )
+
+        openListing(activity, packageName)
+    }
+
+    private fun openListing(
+        activity: Activity,
+        packageName: String,
+    ) {
+        val listing = Uri.parse("https://play.google.com/store/apps/details?id=$packageName")
         val intent = Intent(Intent.ACTION_VIEW, listing).setPackage("com.android.vending")
 
         try {

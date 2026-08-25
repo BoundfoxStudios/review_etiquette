@@ -90,6 +90,7 @@ class ReviewEtiquetteHostApi {
     );
   }
 
+  /// Opens this app's listing with the review composer on top.
   Future<void> openStoreListing(String? appStoreId) async {
     final pigeonVar_channelName =
         'dev.flutter.pigeon.review_etiquette.ReviewEtiquetteHostApi.openStoreListing$pigeonVar_messageChannelSuffix';
@@ -100,6 +101,30 @@ class ReviewEtiquetteHostApi {
     );
     final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
       <Object?>[appStoreId],
+    );
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
+  }
+
+  /// Opens the listing of the given app, without the review composer.
+  Future<void> showStoreListing(
+    String? appStoreId,
+    String? androidPackageName,
+  ) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.review_etiquette.ReviewEtiquetteHostApi.showStoreListing$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[appStoreId, androidPackageName],
     );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 

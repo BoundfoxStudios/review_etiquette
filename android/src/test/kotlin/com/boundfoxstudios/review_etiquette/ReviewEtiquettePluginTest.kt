@@ -136,6 +136,29 @@ class ReviewEtiquettePluginActivityTest {
         }
 
     @Test
+    fun showStoreListing_noActivityAttached_failsWithNoActivity() =
+        runBlocking {
+            val thrown =
+                assertFailsWith<FlutterError> {
+                    ReviewEtiquettePlugin().showStoreListing(null, "com.example.other")
+                }
+
+            assertEquals("no_activity", thrown.code)
+        }
+
+    @Test
+    fun showStoreListing_noPackageName_failsWithMissingPackageName() =
+        runBlocking {
+            val plugin = ReviewEtiquettePlugin()
+            plugin.onAttachedToActivity(bindingFor(Mockito.mock(Activity::class.java)))
+
+            val thrown =
+                assertFailsWith<FlutterError> { plugin.showStoreListing("987654321", null) }
+
+            assertEquals("missing_package_name", thrown.code)
+        }
+
+    @Test
     fun onDetachedFromActivity_afterAttach_forgetsTheActivity() =
         runBlocking {
             val plugin = ReviewEtiquettePlugin()

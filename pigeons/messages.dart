@@ -19,6 +19,11 @@ abstract class ReviewEtiquetteHostApi {
   @async
   void requestReview();
 
+  /// Opens this app's listing with the review composer on top.
   @async
   void openStoreListing(String? appStoreId);
+
+  /// Opens the listing of the given app, without the review composer.
+  @async
+  void showStoreListing(String? appStoreId, String? androidPackageName);
 }

@@ -28,6 +28,8 @@ class _ExamplePageState extends State<ExamplePage> {
     text: '1.0.0',
   );
   final TextEditingController _appStoreId = TextEditingController();
+  final TextEditingController _otherAppStoreId = TextEditingController();
+  final TextEditingController _otherPackageName = TextEditingController();
 
   bool _shortCooldown = true;
   ReviewRequestOutcome? _outcome;
@@ -37,6 +39,8 @@ class _ExamplePageState extends State<ExamplePage> {
   void dispose() {
     _appVersion.dispose();
     _appStoreId.dispose();
+    _otherAppStoreId.dispose();
+    _otherPackageName.dispose();
     super.dispose();
   }
 
@@ -61,6 +65,27 @@ class _ExamplePageState extends State<ExamplePage> {
 
     try {
       await _etiquette.openStoreListing(appStoreId: id.isEmpty ? null : id);
+      if (!mounted) {
+        return;
+      }
+      setState(() => _storeError = null);
+    } on ReviewEtiquetteException catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() => _storeError = error.message);
+    }
+  }
+
+  Future<void> _onShowOtherAppTapped() async {
+    final appStoreId = _otherAppStoreId.text.trim();
+    final packageName = _otherPackageName.text.trim();
+
+    try {
+      await ReviewEtiquette.showStoreListing(
+        appStoreId: appStoreId.isEmpty ? null : appStoreId,
+        androidPackageName: packageName.isEmpty ? null : packageName,
+      );
       if (!mounted) {
         return;
       }
@@ -122,6 +147,27 @@ class _ExamplePageState extends State<ExamplePage> {
         OutlinedButton(
           onPressed: _onRateTapped,
           child: const Text('Rate this app'),
+        ),
+        const Divider(height: 48),
+        TextField(
+          controller: _otherAppStoreId,
+          decoration: const InputDecoration(
+            labelText: "Another app's App Store id",
+            helperText: 'Required on iOS.',
+          ),
+        ),
+        const SizedBox(height: 16),
+        TextField(
+          controller: _otherPackageName,
+          decoration: const InputDecoration(
+            labelText: "Another app's package name",
+            helperText: 'Required on Android.',
+          ),
+        ),
+        const SizedBox(height: 16),
+        OutlinedButton(
+          onPressed: _onShowOtherAppTapped,
+          child: const Text("Show another app's listing"),
         ),
         if (_storeError case final String message) ...<Widget>[
           const SizedBox(height: 12),

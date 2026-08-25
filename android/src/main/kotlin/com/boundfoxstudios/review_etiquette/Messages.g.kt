@@ -66,7 +66,10 @@ private open class MessagesPigeonCodec : StandardMessageCodec() {
 /** Generated interface from Pigeon that represents a handler of messages from Flutter. */
 interface ReviewEtiquetteHostApi {
   suspend fun requestReview()
+  /** Opens this app's listing with the review composer on top. */
   suspend fun openStoreListing(appStoreId: String?)
+  /** Opens the listing of the given app, without the review composer. */
+  suspend fun showStoreListing(appStoreId: String?, androidPackageName: String?)
 
   companion object {
     /** The codec used by ReviewEtiquetteHostApi. */
@@ -104,6 +107,27 @@ interface ReviewEtiquetteHostApi {
             CoroutineScope(Dispatchers.Main).launch {
               val wrapped: List<Any?> = try {
                 api.openStoreListing(appStoreIdArg)
+                listOf(null)
+              } catch (exception: Throwable) {
+                MessagesPigeonUtils.wrapError(exception)
+              }
+              reply.reply(wrapped)
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.review_etiquette.ReviewEtiquetteHostApi.showStoreListing$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val appStoreIdArg = args[0] as String?
+            val androidPackageNameArg = args[1] as String?
+            CoroutineScope(Dispatchers.Main).launch {
+              val wrapped: List<Any?> = try {
+                api.showStoreListing(appStoreIdArg, androidPackageNameArg)
                 listOf(null)
               } catch (exception: Throwable) {
                 MessagesPigeonUtils.wrapError(exception)

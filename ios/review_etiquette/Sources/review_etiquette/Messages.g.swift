@@ -99,7 +99,10 @@ class MessagesPigeonCodec: FlutterStandardMessageCodec, @unchecked Sendable {
 /// Generated protocol from Pigeon that represents a handler of messages from Flutter.
 protocol ReviewEtiquetteHostApi {
   func requestReview() async throws
+  /// Opens this app's listing with the review composer on top.
   func openStoreListing(appStoreId: String?) async throws
+  /// Opens the listing of the given app, without the review composer.
+  func showStoreListing(appStoreId: String?, androidPackageName: String?) async throws
 }
 
 /// Generated setup class from Pigeon to handle messages through the `binaryMessenger`.
@@ -123,6 +126,7 @@ class ReviewEtiquetteHostApiSetup {
     } else {
       requestReviewChannel.setMessageHandler(nil)
     }
+    /// Opens this app's listing with the review composer on top.
     let openStoreListingChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.review_etiquette.ReviewEtiquetteHostApi.openStoreListing\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       openStoreListingChannel.setMessageHandler { message, reply in
@@ -139,6 +143,25 @@ class ReviewEtiquetteHostApiSetup {
       }
     } else {
       openStoreListingChannel.setMessageHandler(nil)
+    }
+    /// Opens the listing of the given app, without the review composer.
+    let showStoreListingChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.review_etiquette.ReviewEtiquetteHostApi.showStoreListing\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      showStoreListingChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let appStoreIdArg: String? = nilOrValue(args[0])
+        let androidPackageNameArg: String? = nilOrValue(args[1])
+        Task { @MainActor in
+          do {
+            try await api.showStoreListing(appStoreId: appStoreIdArg, androidPackageName: androidPackageNameArg)
+            reply(wrapResult(nil))
+          } catch {
+            reply(wrapError(error))
+          }
+        }
+      }
+    } else {
+      showStoreListingChannel.setMessageHandler(nil)
     }
   }
 }
