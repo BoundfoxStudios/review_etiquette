@@ -1,12 +1,11 @@
 /// Why a review request did or did not reach the platform.
 enum ReviewRequestOutcome {
-  /// The native review prompt was triggered.
+  /// The request reached the platform, which may or may not show a prompt.
   ///
-  /// This means the request reached the platform. It does **not** mean anyone
-  /// saw a prompt. Apple shows the prompt at most three times per 365 days and
-  /// never in TestFlight builds, and Google states that its API "does not
-  /// indicate whether the user reviewed or not, or even whether the review
-  /// dialog was shown". Treat this as "we asked", never as "they saw it".
+  /// Apple shows the prompt at most three times per 365 days and never in
+  /// TestFlight builds, and Google states that its API "does not indicate
+  /// whether the user reviewed or not, or even whether the review dialog was
+  /// shown". Treat this as "we asked", never as "they saw it".
   requested,
 
   /// The cooldown has not elapsed since the last request.

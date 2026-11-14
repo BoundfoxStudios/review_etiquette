@@ -86,7 +86,7 @@ disturb the flow it is attached to.
 
 | Outcome | Meaning |
 | --- | --- |
-| `requested` | The system prompt was triggered |
+| `requested` | The request reached the platform, which may or may not show a prompt |
 | `skippedTooSoon` | The cooldown has not elapsed yet |
 | `skippedSameVersion` | This app version already asked |
 | `unavailable` | The platform could not ask, for example with no Play Store installed |
