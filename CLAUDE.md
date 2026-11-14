@@ -73,6 +73,14 @@ an undeclared import. The analyzer never sees it because `analysis_options.yaml`
 excludes `**/*.g.dart`, and pana still reports 160/160. Removing it breaks
 publishing, not the build.
 
+**`pigeon` is pinned exactly** (2026-11-14). CI regenerates the Pigeon output
+and fails on any diff, and every generated file names the generator version in
+its first line. With a caret and no lockfile, which a package must not commit,
+CI picks up each new Pigeon release on its own and fails although
+`pigeons/messages.dart` did not change; 28.1.0 did exactly that. A pin on a dev
+dependency never reaches consuming apps. Upgrading Pigeon is therefore one
+explicit commit: bump the pin, regenerate, commit both.
+
 **Android tests need no Robolectric** (2026-08-24). `ReviewFlow` hands every
 `addOnCompleteListener` an explicit executor, which keeps the Play tasks off the
 main looper, and `ReviewException(int)` is constructible while `ReviewInfo` is
