@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:review_etiquette/review_etiquette.dart';
 
 void main() => runApp(const ReviewEtiquetteExampleApp());

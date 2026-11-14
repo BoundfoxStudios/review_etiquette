@@ -34,7 +34,7 @@ cd example/android && ./gradlew :review_etiquette:test
 dart pub global run pana --no-warning
 ```
 
-The codegen is **two steps**. Pigeon 28 emits Dart that the 3.13 formatter
+The codegen is **two steps**. Pigeon 28 emits Dart that the 3.14 formatter
 rewrites, so skipping the `dart format` breaks the format check and with it the
 top static-analysis tier. CI verifies the committed output still matches its
 input.
@@ -141,6 +141,17 @@ requires minimum platform version 16.0 for the iOS platform, but this target
 supports 15.0". Run `flutter build ios --config-only` afterwards. Building
 through the `flutter` command does it for you; building straight from Xcode does
 not.
+
+**Every Flutter bump raises the Android build floors.** Flutter's Gradle plugin
+rejects AGP, KGP and Gradle versions below its own floors
+(`DependencyVersionChecker.kt` in flutter_tools) before anything compiles, and
+the KGP check applies because `example/android/gradle.properties` sets
+`android.builtInKotlin=false`. Move `android/build.gradle.kts`,
+`example/android/settings.gradle.kts` and the Gradle wrapper with `.fvmrc`, to
+the newest patch of the combination Flutter's own compatibility table accepts
+(`gradle_utils.dart`), not to the registry's latest: for 3.50.0 that is AGP
+9.3.3, KGP 2.4.21 and Gradle 9.5.0. The sandbox cannot check it; `./gradlew
+:review_etiquette:test` from `example/android` or the CI android job can.
 
 **A sandbox and a Mac cannot share `.dart_tool/package_config.json`.** It holds
 absolute paths, so whichever machine ran `flutter pub get` last wins and the
