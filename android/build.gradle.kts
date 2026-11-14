@@ -75,5 +75,5 @@ dependencies {
     implementation("com.google.android.play:review:2.0.2")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
-    testImplementation("org.mockito:mockito-core:5.23.0")
+    testImplementation("org.mockito:mockito-core:5.24.0")
 }
