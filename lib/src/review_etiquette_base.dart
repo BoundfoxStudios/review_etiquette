@@ -52,6 +52,10 @@ class ReviewEtiquette {
   ///
   /// A [ReviewRequestOutcome.requested] result means the request reached the
   /// platform, never that anyone saw a prompt.
+  ///
+  /// The future does not wait for the prompt. On either platform it completes
+  /// once the platform has been asked, while the prompt may still be on screen,
+  /// may not have appeared yet, or may never appear.
   Future<ReviewRequestOutcome> requestReview() => _requester.requestReview();
 
   /// Opens this app's store page, for a user initiated "rate this app" button.

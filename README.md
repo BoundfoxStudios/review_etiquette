@@ -24,8 +24,9 @@ The package decides the moment; the sheet itself belongs to the platform.*
 
 ## Requirements
 
-| Platform | Minimum |
+| Requirement | Minimum |
 | --- | --- |
+| Flutter | 3.44 |
 | iOS | 16.0 |
 | Android | API 24 |
 
@@ -86,7 +87,7 @@ disturb the flow it is attached to.
 
 | Outcome | Meaning |
 | --- | --- |
-| `requested` | The system prompt was triggered |
+| `requested` | The request reached the platform, which may or may not show a prompt |
 | `skippedTooSoon` | The cooldown has not elapsed yet |
 | `skippedSameVersion` | This app version already asked |
 | `unavailable` | The platform could not ask, for example with no Play Store installed |
@@ -101,6 +102,13 @@ that the API "does not indicate whether the user reviewed or not, or even
 whether the review dialog was shown". Any analytics you build on top of this
 counts requests, never impressions, and any UI that says "thanks for rating"
 after a `requested` outcome is lying to your users.
+
+The call does not wait for the prompt either. `requestReview()` returns once the
+platform has been asked, not once the prompt has closed, so the sheet or card
+may still be on screen, may not have appeared yet, or may never appear. StoreKit
+offers nothing to wait on. Google Play does, but its task completes on any close
+and carries no result, so on Android the package deliberately does not wait for
+it. Never treat the end of the `await` as the user being done with the prompt.
 
 ### A button that says "rate this app"
 

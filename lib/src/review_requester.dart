@@ -16,10 +16,9 @@ class ReviewRequester {
   ReviewRequester({
     required this.appVersion,
     required this.cooldown,
-    required ReviewEtiquetteHostApi api,
-    required ReviewStateStorage storage,
-  }) : _api = api,
-       _storage = storage;
+    required this._api,
+    required this._storage,
+  });
 
   /// The user visible app version the consumer handed us.
   final String appVersion;

@@ -34,7 +34,7 @@ cd example/android && ./gradlew :review_etiquette:test
 dart pub global run pana --no-warning
 ```
 
-The codegen is **two steps**. Pigeon 28 emits Dart that the 3.13 formatter
+The codegen is **two steps**. Pigeon 30 emits Dart that the 3.14 formatter
 rewrites, so skipping the `dart format` breaks the format check and with it the
 top static-analysis tier. CI verifies the committed output still matches its
 input.
@@ -44,11 +44,21 @@ input.
 Each of these looks wrong until you know why. Verified on the date given; do not
 retry without new evidence.
 
-**Swift 6 language mode is not achievable here** (2026-08-25). Pigeon 28
+**Swift 6 language mode is not achievable here** (2026-11-14). Pigeon 30
 generates a message handler that captures the non-`Sendable` `api` and `reply`
 inside `Task { @MainActor in }`, and generated code cannot be fixed by hand.
 Pigeon ships its own packages at `swift-tools-version: 5.9` for the same reason.
 Revisit only when Pigeon's generated Swift is language-mode clean.
+
+**Pigeon's native interop is not used yet** (2026-11-14). Pigeon 29 and later
+can generate FFI and JNI bindings instead of platform channels, but the mode is
+labelled Preview and docs.flutter.dev calls it not stable for production use.
+For this plugin it would add the `ffi`, `objective_c` and `jni` runtime
+dependencies, an Objective-C bridge target, code generation that only works on
+macOS with an Android SDK (and still exits 0 elsewhere while skipping parts),
+and Kotlin that resumes on `Dispatchers.IO` instead of the main thread, all for
+two rare async calls. Switch once the Preview label is gone:
+[#13](https://github.com/BoundfoxStudios/review_etiquette/issues/13).
 
 **The podspec stays, even though SPM is the default** (2026-08-25). SPM is the
 default only for **newly created** projects; existing apps stay on CocoaPods
@@ -73,12 +83,41 @@ an undeclared import. The analyzer never sees it because `analysis_options.yaml`
 excludes `**/*.g.dart`, and pana still reports 160/160. Removing it breaks
 publishing, not the build.
 
+**`pigeon` is pinned exactly** (2026-11-14). CI regenerates the Pigeon output
+and fails on any diff, and every generated file names the generator version in
+its first line. With a caret and no lockfile, which a package must not commit,
+CI picks up each new Pigeon release on its own and fails although
+`pigeons/messages.dart` did not change; 28.1.0 did exactly that. A pin on a dev
+dependency never reaches consuming apps. Upgrading Pigeon is therefore one
+explicit commit: bump the pin, regenerate, commit both.
+
+**The floor is Flutter 3.44 and Dart 3.12** (2026-11-14). Two things set it:
+Flutter pins `meta` exactly below 3.44, so `meta: ^1.18.0` cannot resolve there,
+and the built-in Kotlin form of `android/build.gradle.kts` needs 3.44. The
+`FlutterFramework` package in `Package.swift` (3.41) and
+`registrar.viewController` (3.38) sit below that, so lowering `meta` buys
+nothing. Dart 3.12 is also what allows the private named initializing formals in
+`ReviewRequester`. pana does not catch a wrong floor: its lower-bound check
+downgrades on the current SDK only, which is how `>=3.35.0` shipped in 0.1.0 and
+1.0.0. A CI job on the floor version was considered and rejected: the floor only
+ever moves up.
+
 **Android tests need no Robolectric** (2026-08-24). `ReviewFlow` hands every
 `addOnCompleteListener` an explicit executor, which keeps the Play tasks off the
 main looper, and `ReviewException(int)` is constructible while `ReviewInfo` is
 mockable. The `FakeReviewManager` from the Play artifact is unusable in a JVM
 test: it calls `new Intent()`, `Build.VERSION.SDK_INT` and
 `PendingIntent.getBroadcast()`. JUnit 5 stays.
+
+**`launchReviewFlow` is deliberately not awaited** (2026-11-14). Google's guide
+says to wait for the review flow before the app continues, so awaiting the task
+in `ReviewFlow.kt` looks like a fix. It is not: the task completes on any close
+and carries no result, StoreKit offers nothing equivalent, so the platforms
+would diverge, and the process wide request mutex would stay held for as long as
+the card is open. Google also does not document when the task completes if the
+quota suppresses the card. The cost is that a failing launch task goes unnoticed
+and still yields `requested`; the README tells consumers that the call returns
+while the prompt may still be on screen.
 
 **The store listing deliberately has two names** (2026-08-25). Dart rejects a
 static and an instance member of the same name
@@ -124,6 +163,17 @@ supports 15.0". Run `flutter build ios --config-only` afterwards. Building
 through the `flutter` command does it for you; building straight from Xcode does
 not.
 
+**Every Flutter bump raises the Android build floors.** Flutter's Gradle plugin
+rejects AGP, KGP and Gradle versions below its own floors
+(`DependencyVersionChecker.kt` in flutter_tools) before anything compiles, and
+the KGP check applies because `example/android/gradle.properties` sets
+`android.builtInKotlin=false`. Move `android/build.gradle.kts`,
+`example/android/settings.gradle.kts` and the Gradle wrapper with `.fvmrc`, to
+the newest patch of the combination Flutter's own compatibility table accepts
+(`gradle_utils.dart`), not to the registry's latest: for 3.50.0 that is AGP
+9.3.3, KGP 2.4.21 and Gradle 9.5.0. The sandbox cannot check it; `./gradlew
+:review_etiquette:test` from `example/android` or the CI android job can.
+
 **A sandbox and a Mac cannot share `.dart_tool/package_config.json`.** It holds
 absolute paths, so whichever machine ran `flutter pub get` last wins and the
 other one fails with "No such file or directory" on the SDK path.
@@ -142,13 +192,6 @@ Two things that bite: a workflow file is armed the moment a push puts it on
 The 0.1.0 release therefore went out with the workflow commits held back, so the
 `v0.1.0` tag sits on a commit that carries no `publish.yml`. Its archive was
 uploaded by hand; `v1.0.0` is the first tag that actually runs `publish.yml`.
-
-`release-as: "1.0.0"` in `release-please-config.json` forces the next release
-pull request to that version. **Take the line out once the pull request is
-merged**, or every later release stays 1.0.0. `bump-minor-pre-major` and
-`bump-patch-for-minor-pre-major` were dropped in the same pass: both only apply
-below 1.0.0, and together they are why a `feat` bumped the patch instead of the
-minor up to 0.1.x.
 
 ## Verifying by hand
 
