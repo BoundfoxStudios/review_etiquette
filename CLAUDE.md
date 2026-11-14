@@ -50,6 +50,16 @@ inside `Task { @MainActor in }`, and generated code cannot be fixed by hand.
 Pigeon ships its own packages at `swift-tools-version: 5.9` for the same reason.
 Revisit only when Pigeon's generated Swift is language-mode clean.
 
+**Pigeon's native interop is not used yet** (2026-11-14). Pigeon 29 and later
+can generate FFI and JNI bindings instead of platform channels, but the mode is
+labelled Preview and docs.flutter.dev calls it not stable for production use.
+For this plugin it would add the `ffi`, `objective_c` and `jni` runtime
+dependencies, an Objective-C bridge target, code generation that only works on
+macOS with an Android SDK (and still exits 0 elsewhere while skipping parts),
+and Kotlin that resumes on `Dispatchers.IO` instead of the main thread, all for
+two rare async calls. Switch once the Preview label is gone:
+[#13](https://github.com/BoundfoxStudios/review_etiquette/issues/13).
+
 **The podspec stays, even though SPM is the default** (2026-08-25). SPM is the
 default only for **newly created** projects; existing apps stay on CocoaPods
 until someone migrates them. `flutter_tools/lib/src/ios/mac.dart` fails the
