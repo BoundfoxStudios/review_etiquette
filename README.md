@@ -24,8 +24,9 @@ The package decides the moment; the sheet itself belongs to the platform.*
 
 ## Requirements
 
-| Platform | Minimum |
+| Requirement | Minimum |
 | --- | --- |
+| Flutter | 3.44 |
 | iOS | 16.0 |
 | Android | API 24 |
 

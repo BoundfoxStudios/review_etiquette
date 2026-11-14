@@ -91,6 +91,17 @@ CI picks up each new Pigeon release on its own and fails although
 dependency never reaches consuming apps. Upgrading Pigeon is therefore one
 explicit commit: bump the pin, regenerate, commit both.
 
+**The floor is Flutter 3.44 and Dart 3.12** (2026-11-14). Two things set it:
+Flutter pins `meta` exactly below 3.44, so `meta: ^1.18.0` cannot resolve there,
+and the built-in Kotlin form of `android/build.gradle.kts` needs 3.44. The
+`FlutterFramework` package in `Package.swift` (3.41) and
+`registrar.viewController` (3.38) sit below that, so lowering `meta` buys
+nothing. Dart 3.12 is also what allows the private named initializing formals in
+`ReviewRequester`. pana does not catch a wrong floor: its lower-bound check
+downgrades on the current SDK only, which is how `>=3.35.0` shipped in 0.1.0 and
+1.0.0. A CI job on the floor version was considered and rejected: the floor only
+ever moves up.
+
 **Android tests need no Robolectric** (2026-08-24). `ReviewFlow` hands every
 `addOnCompleteListener` an explicit executor, which keeps the Play tasks off the
 main looper, and `ReviewException(int)` is constructible while `ReviewInfo` is
