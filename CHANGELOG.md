@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/BoundfoxStudios/review_etiquette/compare/v1.0.0...v1.0.1) (2026-11-14)
+
+
+### Bug Fixes
+
+* require flutter 3.44, the oldest version the package resolves on ([4ac6477](https://github.com/BoundfoxStudios/review_etiquette/commit/4ac6477468de028b2f7edc98e9ccd66412813dfa))
+
 ## [1.0.0](https://github.com/BoundfoxStudios/review_etiquette/compare/v0.1.0...v1.0.0) (2026-08-25)
 
 
