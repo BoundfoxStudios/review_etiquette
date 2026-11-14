@@ -88,6 +88,16 @@ mockable. The `FakeReviewManager` from the Play artifact is unusable in a JVM
 test: it calls `new Intent()`, `Build.VERSION.SDK_INT` and
 `PendingIntent.getBroadcast()`. JUnit 5 stays.
 
+**`launchReviewFlow` is deliberately not awaited** (2026-11-14). Google's guide
+says to wait for the review flow before the app continues, so awaiting the task
+in `ReviewFlow.kt` looks like a fix. It is not: the task completes on any close
+and carries no result, StoreKit offers nothing equivalent, so the platforms
+would diverge, and the process wide request mutex would stay held for as long as
+the card is open. Google also does not document when the task completes if the
+quota suppresses the card. The cost is that a failing launch task goes unnoticed
+and still yields `requested`; the README tells consumers that the call returns
+while the prompt may still be on screen.
+
 **The store listing deliberately has two names** (2026-08-25). Dart rejects a
 static and an instance member of the same name
 (`conflicting_static_and_instance`), so the instance form stayed
