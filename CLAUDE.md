@@ -34,7 +34,7 @@ cd example/android && ./gradlew :review_etiquette:test
 dart pub global run pana --no-warning
 ```
 
-The codegen is **two steps**. Pigeon 28 emits Dart that the 3.14 formatter
+The codegen is **two steps**. Pigeon 30 emits Dart that the 3.14 formatter
 rewrites, so skipping the `dart format` breaks the format check and with it the
 top static-analysis tier. CI verifies the committed output still matches its
 input.
@@ -44,7 +44,7 @@ input.
 Each of these looks wrong until you know why. Verified on the date given; do not
 retry without new evidence.
 
-**Swift 6 language mode is not achievable here** (2026-08-25). Pigeon 28
+**Swift 6 language mode is not achievable here** (2026-11-14). Pigeon 30
 generates a message handler that captures the non-`Sendable` `api` and `reply`
 inside `Task { @MainActor in }`, and generated code cannot be fixed by hand.
 Pigeon ships its own packages at `swift-tools-version: 5.9` for the same reason.
